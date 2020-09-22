@@ -15,7 +15,7 @@ def load(roll):
 
     res = soup(requests.post(site, data=data).content, features='html.parser')
 
-    details = (res.find(id='LbStudentName').contents[0], str(roll), res.find(id='lbloddSgpa').contents[0])
+    details = (res.find(id='LbStudentName').contents[0], str(roll), res.find(id='lblevenSgpa').contents[0])
     print(f'{details[1].rjust(2)} │ {details[0].center(25)} │ {details[2]}')
     score_dat.append(details)
 
@@ -23,7 +23,7 @@ def load(roll):
 if __name__ == '__main__':
     first_roll_no = 430419020001
     last_roll_no = 430419010065
-    exam_code = 'C19A01'
+    exam_code = 'D20A01'
     site = 'http://jisexams.in/JISEXAMS/studentServices/frmViewStudentGradeCardResult.aspx'
 
     if male := str(first_roll_no)[7] == '1':
@@ -36,12 +36,12 @@ if __name__ == '__main__':
     score_dat = list()
 
     login_page = soup(requests.get(site).content, features='html.parser')
-    data_main = {'btnView.x': '0', 'btnView.y': '0'}
+    data_main = {'btnView.x': '0', 'btnView.y': '0', 'ddlExamType': '1'}
     asp_dat = ('__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION')
     for key in asp_dat:
         data_main[key] = login_page.find(id=key).get('value')
 
-    for i in range(1, int(str(last_roll_no)[-3:])):
+    for i in range(1, int(str(last_roll_no)[-3:]) + 1):
         try:
             load(i)
         except:
