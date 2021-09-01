@@ -1,5 +1,3 @@
-from msvcrt import getch
-
 import requests
 from bs4 import BeautifulSoup as soup
 
@@ -15,7 +13,8 @@ def load(roll):
 
     res = soup(requests.post(site, data=data).content, features='html.parser')
 
-    details = (res.find(id='LbStudentName').contents[0], str(roll), res.find(id='lblevenSgpa').contents[0])
+    details = (res.find(id='LbStudentName').contents[0], str(
+        roll), res.find(id='lblevenSgpa').contents[0])
     print(f'{details[1].rjust(2)} │ {details[0].center(25)} │ {details[2]}')
     score_dat.append(details)
 
@@ -23,10 +22,11 @@ def load(roll):
 if __name__ == '__main__':
     first_roll_no = 430419020001
     last_roll_no = 430419010065
-    exam_code = 'D20A01'
+    exam_code = 'F21A01'
     site = 'http://jisexams.in/JISEXAMS/studentServices/frmViewStudentGradeCardResult.aspx'
 
-    if male := str(first_roll_no)[7] == '1':
+    male = str(first_roll_no)[7] == '1'
+    if male:
         male_roll = first_roll_no - 1
         female_roll = male_roll + 10000
     else:
@@ -49,10 +49,17 @@ if __name__ == '__main__':
                 male = not male
                 load(i)
             except:
-                pass
+                login_page = soup(requests.get(site).content,
+                                  features='html.parser')
+                data_main = {'btnView.x': '0',
+                             'btnView.y': '0', 'ddlExamType': '1'}
+                asp_dat = ('__VIEWSTATE', '__VIEWSTATEGENERATOR',
+                           '__EVENTVALIDATION')
+                for key in asp_dat:
+                    data_main[key] = login_page.find(id=key).get('value')
 
     score_dat = sorted(score_dat, key=lambda x: float(x[2]), reverse=True)
 
     for rank, details in enumerate(score_dat):
-        print(f'{str(rank + 1).rjust(3)} │ {details[0].center(25)} │ {details[1].rjust(2)} │ {details[2]}')
-    getch()
+        print(
+            f'{str(rank + 1).rjust(3)} │ {details[0].center(25)} │ {details[1].rjust(2)} │ {details[2]}')
